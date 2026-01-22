@@ -8,20 +8,16 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Checkout repository
       - name: Checkout source
         uses: actions/checkout@v4
 
-      # Setup Android NDK r21e
       - name: Setup Android NDK r21e
         uses: nttld/setup-ndk@v1
         with:
           ndk-version: r21e
 
-      # Build 32-bit (armeabi-v7a)
-      - name: Build armeabi-v7a
+      - name: Build armeabi-v7a (32-bit)
         run: |
-          cd Dobby
           mkdir -p build-32
           cd build-32
           cmake .. \
@@ -32,10 +28,8 @@ jobs:
             -DCMAKE_BUILD_TYPE=Release
           cmake --build . --config Release
 
-      # Build 64-bit (arm64-v8a)
-      - name: Build arm64-v8a
+      - name: Build arm64-v8a (64-bit)
         run: |
-          cd Dobby
           mkdir -p build-64
           cd build-64
           cmake .. \
@@ -46,11 +40,10 @@ jobs:
             -DCMAKE_BUILD_TYPE=Release
           cmake --build . --config Release
 
-      # Upload artifacts
       - name: Upload libdobby.a
         uses: actions/upload-artifact@v4
         with:
           name: libdobby-r21e
           path: |
-            Dobby/build-32/dobby/libdobby.a
-            Dobby/build-64/dobby/libdobby.a
+            build-32/dobby/libdobby.a
+            build-64/dobby/libdobby.a
