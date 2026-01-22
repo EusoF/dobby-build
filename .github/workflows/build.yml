@@ -1,4 +1,4 @@
-name: Build libdobby.a (r21e 32+64 FINAL FIXED)
+name: Build libdobby.a (WORKING FINAL)
 
 on:
   workflow_dispatch:
@@ -8,20 +8,20 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repo
+      - name: Checkout
         uses: actions/checkout@v4
 
-      # 🔥 IMPORTANT FIX: recursive clone
-      - name: Clone Dobby (recursive)
+      - name: Clone Dobby
         run: |
-          git clone --recursive https://github.com/jmpews/Dobby.git
+          git clone https://github.com/jmpews/Dobby.git
 
-      - name: Setup Android NDK r21e
+      - name: Setup Android NDK
         uses: nttld/setup-ndk@v1
         with:
           ndk-version: r21e
 
-      - name: Build armeabi-v7a (32-bit)
+      # 32-bit (assembler OFF)
+      - name: Build armeabi-v7a
         run: |
           cd Dobby
           mkdir build-32
@@ -30,10 +30,12 @@ jobs:
             -DCMAKE_TOOLCHAIN_FILE=$ANDROID_NDK_HOME/build/cmake/android.toolchain.cmake \
             -DANDROID_ABI=armeabi-v7a \
             -DANDROID_PLATFORM=android-21 \
+            -DDOBBY_ENABLE_ASSEMBLER=OFF \
             -DCMAKE_BUILD_TYPE=Release
           cmake --build . --config Release
 
-      - name: Build arm64-v8a (64-bit)
+      # 64-bit (assembler OK)
+      - name: Build arm64-v8a
         run: |
           cd Dobby
           mkdir build-64
@@ -45,10 +47,10 @@ jobs:
             -DCMAKE_BUILD_TYPE=Release
           cmake --build . --config Release
 
-      - name: Upload libdobby.a
+      - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: libdobby-r21e-final
+          name: libdobby-final
           path: |
             Dobby/build-32/dobby/libdobby.a
             Dobby/build-64/dobby/libdobby.a
