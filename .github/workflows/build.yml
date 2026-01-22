@@ -8,17 +8,21 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # Step 1: Source checkout
       - name: Checkout source
         uses: actions/checkout@v4
 
+      # Step 2: Android NDK setup
       - name: Setup Android NDK
         uses: nttld/setup-ndk@v1
         with:
           ndk-version: r25c
 
+      # Step 3: Build static libdobby.a
       - name: Build static dobby
         run: |
-          mkdir build
+          cd Dobby
+          mkdir -p build
           cd build
           cmake .. \
             -DCMAKE_TOOLCHAIN_FILE=$ANDROID_NDK_HOME/build/cmake/android.toolchain.cmake \
@@ -28,8 +32,9 @@ jobs:
             -DCMAKE_BUILD_TYPE=MinSizeRel
           cmake --build . --config MinSizeRel
 
+      # Step 4: Upload artifact
       - name: Upload libdobby.a
         uses: actions/upload-artifact@v4
         with:
-          name: libdobby-static
-          path: build/dobby/libdobby.a
+          name: libdobby-static-armeabi-v7a
+          path: Dobby/build/dobby/libdobby.a
